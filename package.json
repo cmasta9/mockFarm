@@ -2,7 +2,9 @@
   "name": "mockfarm1",
   "module": "service.js",
   "type": "module",
-  "scripts": {"start": "bun run service.js"},
+  "scripts": {
+    "start": "bun run service.js"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
