@@ -1,0 +1,12 @@
+{
+  "name": "mockfarm1",
+  "module": "service.js",
+  "type": "module",
+  "scripts": {"start": "bun run service.js"},
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
