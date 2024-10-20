@@ -29,14 +29,4 @@ const server = Bun.serve({
     },
 });
 
-setInterval(()=>{
-    server.reload({
-        static:{
-        },
-        fetch(req){
-            return new Response('404');
-        },
-    });
-},10);
-
 console.log(`Listening on ${server.hostname}:${server.port}`);
