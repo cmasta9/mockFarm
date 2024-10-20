@@ -3,7 +3,7 @@
   "module": "service.js",
   "type": "module",
   "scripts": {
-    "start": "bun run service.js"
+    "start": "bun run --watch service.js"
   },
   "devDependencies": {
     "@types/bun": "latest"

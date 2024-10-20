@@ -5,24 +5,23 @@ const canv = document.getElementById('canv');
 const alienPath = '/images/alien.png';
 let spd = 2;
 let scene = [];
-const orig = new Transform(canv.offsetWidth/2,canv.offsetHeight/2,spd);
+let orig = new Transform(canv.offsetWidth/2,canv.offsetHeight/2,spd);
 console.log(orig.getX(),orig.getY(),orig.getSpd());
-const orig2 = new Transform(100,100,6);
-const orig3 = new Transform(200,200,7);
-console.log(orig2.getX());
-console.log(orig3.getX());
 
 let ctx = canv.getContext('2d');
 let al = document.createElement('img');
 document.body.appendChild(al);
 al.src = alienPath;
 
-console.log(orig.getX(),orig.getY(),orig.getSpd());
-let monk = new MonKey();
+let monk = new MonKey(Date.now(),orig);
 console.log(orig.getX(),orig.getY(),orig.getSpd());
 monk.getTrans().setX(orig.getX());
 console.log(monk.getName(), monk.getId(), monk.getTrans().getX());
 scene.push(monk);
+
+//let monk2 = new MonKey();
+
+//scene.push(monk2);
 
 window.addEventListener('keydown', (e) => {
     if(e.code == 'ArrowRight'){
@@ -41,6 +40,12 @@ window.addEventListener('keydown', (e) => {
         monk.getTrans().translate(0,1);
         console.log(monk.getTrans().getY());
     }
+    if(e.code == 'KeyP'){
+        let monk3 = new MonKey();
+        scene.push(monk3);
+        console.log(monk3.getId());
+    }
+    console.log(e.code);
 })
 
 window.setInterval(() => {
