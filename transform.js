@@ -1,7 +1,8 @@
 export class Transform{
-    constructor(x=0,y=0,spd=5){
+    constructor(x=0,y=0,inp=[0,0],spd=2){
         this.x = Number(x);
         this.y = Number(y);
+        this.inp = inp;
         this.spd = spd;
     }
 
@@ -29,8 +30,10 @@ export class Transform{
         return this.spd;
     }
 
-    translate(x=0,y=0){
-        this.x += x * this.spd;
-        this.y += y * this.spd;
+    translate(){
+        if(this.inp.length > 1){
+            this.x += this.spd * this.inp[0];
+            this.y += this.spd * this.inp[1];
+        }
     }
 }

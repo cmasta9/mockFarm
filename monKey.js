@@ -23,9 +23,7 @@ export class MonKey {
         return this.trans;
     }
 
-    setTrans(x,y,spd=this.trans.getSpd()){
-        console.log(x,y,spd);
-        this.trans = new Transform(x,y,spd);
-        console.log(self.trans.getX());
+    setTrans(x=0,y=0,i=[],spd=this.trans.spd){
+        this.trans = new Transform(x,y,i,spd);
     }
 }
