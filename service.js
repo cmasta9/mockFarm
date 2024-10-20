@@ -5,7 +5,7 @@ const server = Bun.serve({
     fetch(req,serv){
         const ip = serv.requestIP(req);
         const yurl = new URL(req.url);
-        console.log(`${ip} is requesting: ${yurl.pathname}`);
+        console.log(`${JSON.stringify(ip)} is requesting: ${yurl.pathname}`);
         return new Response('404');
     },
     static: {

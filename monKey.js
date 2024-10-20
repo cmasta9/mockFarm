@@ -3,29 +3,29 @@ import {Inventory} from './inventory.js';
 
 export class MonKey {
     constructor(id=Date.now(),trans=new Transform(),inv=new Inventory(),name='MonKey',level=1,elem='Earth'){
-        self.id = id;
-        self.trans = trans;
-        self.name = name;
-        self.level = level;
-        self.inv = inv;
-        self.elem = elem;
+        this.id = id;
+        this.trans = trans;
+        this.name = name;
+        this.level = level;
+        this.inv = inv;
+        this.elem = elem;
     }
 
     getId(){
-        return self.id;
+        return this.id;
     }
 
     getName(){
-        return self.name;
+        return this.name;
     }
 
     getTrans(){
-        return self.trans;
+        return this.trans;
     }
 
-    setTrans(x,y,spd){
+    setTrans(x,y,spd=this.trans.getSpd()){
         console.log(x,y,spd);
-        self.trans = new Transform(x,y,spd);
+        this.trans = new Transform(x,y,spd);
         console.log(self.trans.getX());
     }
 }

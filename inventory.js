@@ -1,11 +1,11 @@
 export class Inventory{
     constructor(bananas=0,seeds=0,fertilizer=0){
-        self.bananas = bananas;
-        self.seeds = seeds;
-        self.fertilizer = fertilizer;
+        this.bananas = bananas;
+        this.seeds = seeds;
+        this.fertilizer = fertilizer;
     }
 
     getBans(){
-        return self.bananas;
+        return this.bananas;
     }
 }

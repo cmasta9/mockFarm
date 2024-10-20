@@ -1,36 +1,36 @@
 export class Transform{
     constructor(x=0,y=0,spd=5){
-        self.x = Number(x);
-        self.y = Number(y);
-        self.spd = spd;
+        this.x = Number(x);
+        this.y = Number(y);
+        this.spd = spd;
     }
 
     setX(x){
-        self.x = x;
+        this.x = x;
     }
 
     getX(){
-        return self.x;
+        return this.x;
     }
 
     setY(y){
-        self.y = y;
+        this.y = y;
     }
 
     getY(){
-        return self.y;
+        return this.y;
     }
 
     setSpd(spd){
-        self.spd = spd;
+        this.spd = spd;
     }
 
     getSpd(){
-        return self.spd;
+        return this.spd;
     }
 
     translate(x=0,y=0){
-        self.x += x * self.spd;
-        self.y += y * self.spd;
+        this.x += x * this.spd;
+        this.y += y * this.spd;
     }
 }
