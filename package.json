@@ -3,10 +3,10 @@
   "module": "service.js",
   "type": "module",
   "scripts": {
-    "start": "bun run --watch service.js"
+    "start": "bun run --watch service.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.1.11"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
