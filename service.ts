@@ -21,8 +21,6 @@ const server = Bun.serve<{ socketId : number }>({
         {headers: {'Content-Type': 'text/html'},}),
         '/game.js': new Response(await Bun.file('./game.js').bytes(),
         {headers: {'Content-Type': 'text/javascript'},}),
-        '/user.js': new Response(await Bun.file('./user.js').bytes(),
-        {headers: {'Content-Type': 'text/javascript'},}),
         '/monKey.js': new Response(await Bun.file('./monKey.js').bytes(),
         {headers: {'Content-Type': 'text/javascript'},}),
         '/transform.js': new Response(await Bun.file('./transform.js').bytes(),

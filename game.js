@@ -1,4 +1,3 @@
-import {User} from '/user.js';
 import {MonKey} from '/monKey.js';
 import {Transform} from '/transform.js';
 import {Scene} from '/scene.js';
