@@ -29,7 +29,10 @@ export function mapToString(map){
     let crunched = '';
     for(const k of map.keys()){
         //console.log(k);
-        crunched = crunched + map.get(k) + ';';
+        if(crunched != ''){
+            crunched = crunched + ';';
+        }
+        crunched = crunched + map.get(k);
     }
     return crunched;
 }

@@ -47,4 +47,14 @@ export class MonKey {
     setTrans(x=0,y=0,i=[],spd=this.trans.spd){
         this.trans = new Transform(x,y,i,spd);
     }
+
+    translate(){
+        if(this.trans.inp[0] > this.trans.x){
+            this.spriter.faceRt();
+        }
+        if(this.trans.inp[0] < this.trans.x){
+            this.spriter.faceLt();
+        }
+        this.trans.translate2();
+    }
 }

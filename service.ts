@@ -1,5 +1,5 @@
 const port = 4200;
-import {mapToString,stringToJson,jsonToString} from './monkeyMap.js';
+import {mapToString,stringToJson,jsonToString,parseString,stringToArr} from './monkeyMap.js';
 let monkeys = new Map();
 
 const server = Bun.serve<{ socketId : number }>({
@@ -44,30 +44,45 @@ const server = Bun.serve<{ socketId : number }>({
         '/': new Response('LFG'),
     },
     websocket: {
-        async message(ws,mess){
-            //console.log(`Received a message: ${JSON.stringify(mess)} from ${ws.data.socketId}`);
-            //console.log(mess);
-            if(mess == 'Assignment'){
-                ws.send(JSON.stringify({'assignment': ws.data.socketId}));
-                console.log(`Assigned an ID to ${ws.data.socketId}`);
-            }
-            else if(mess == 'gimme'){
+        async open(ws){
+            ws.send(JSON.stringify({'assignment': ws.data.socketId}));
+            console.log(`Sent wsID to ${ws.data.socketId}`);
+            ws.subscribe('game');
+            server.publish('game',JSON.stringify({'connection': ws.data.socketId}));
+
+            /*
+            setInterval(() => {
                 if(monkeys.size > 1){
-                    //console.log(`size: ${monkeys.size}, ${mapToString(monkeys)}`);
                     ws.send(JSON.stringify({'monkeys': mapToString(monkeys)}));
                     console.log(`Sent monkey (${monkeys.size}) datas to ${ws.data.socketId}`);
                 }
-            }
-            else{
+            }, 500);
+            */
+        },
+        async close(ws){
+            console.log(`${ws.data.socketId} disconnected`);
+            server.publish('game',JSON.stringify({'disconnect': ws.data.socketId}));
+            monkeys.delete(ws.data.socketId);
+        },
+        async message(ws,mess){
+            //console.log(`Received a message: ${JSON.stringify(mess)} from ${ws.data.socketId}`);
+            if(mess == 'gimme'){
+                ws.send(JSON.stringify({'monkeys': mapToString(monkeys)}));
+                console.log(`Sent monkey data to ${ws.data.socketId}`);
+            }else{
                 try{
-                    const jason = stringToJson(mess);
-                    if(jason.id){
-                        monkeys.set(jason.id,jsonToString(jason));
-                        console.log(`Logged data from ${jason.id}, ${monkeys.get(jason.id)}`);
+                    const stir = stringToArr(parseString(mess));
+                    if(stir[0]){
+                        monkeys.set(Number(stir[0]),parseString(mess));
+                        console.log(`Logged data from ${stir[0]}, ${monkeys.get(Number(stir[0]))}`);
+                        if(monkeys.size > 1){
+                            server.publish('game',JSON.stringify({'monkeys': mapToString(monkeys)}));
+                            console.log(`Broadcasted (${monkeys.size}) monKey datas`);
+                        }
                     }
                 }
                 catch(e){
-                    console.log(`error handling message: ${JSON.stringify(mess)}, ${e}`);
+                    console.log(`error handling server message: ${JSON.stringify(mess)}, ${e}`);
                 }
             }
         },
