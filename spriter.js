@@ -16,4 +16,13 @@ export class Spriter{
     faceLt(){
         this.cur = this.left;
     }
+
+    getFace(){
+        if(this.cur == this.left){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 }

@@ -1,19 +1,29 @@
 import {MonKey} from '/monKey.js';
 import {Transform} from '/transform.js';
+import {Plant} from '/plant.js';
 import {Scene} from '/scene.js';
-import {addMove,removeMove} from '/input.js';
+import {setPos,openMenu} from '/inputCanv.js';
 import { objToString,objToJson,stringToMap,stringToJson,parseString,stringToArr,jsonToString } from '/monkeyMap.js';
 
-let wsOpen = false;
+const flowerPath = '/images/flower1.png';
 
-const flag = true;
+let wsOpen = false;
 
 const hostUrl = 'localhost:4200';
 let monk = null;
 
 const canv = document.getElementById('canv');
+const pCanv = document.getElementById('plant');
+const iCanv = document.getElementById('ui');
 let scene = new Scene();
 let ctx = canv.getContext('2d');
+let ctxp = pCanv.getContext('2d');
+let ctx2 = iCanv.getContext('2d');
+ctx2.font = '42px Arial';
+ctx2.fillText('Plant',iCanv.offsetWidth,iCanv.offsetHeight);
+setPos(iCanv,canv.offsetWidth*0.1,canv.offsetHeight*0.8);
+
+document.getElementById('users').style.top = canv.offsetHeight + 42 + 'px';
 
 const ws = new WebSocket(`ws://${hostUrl}`);
 ws.addEventListener('open',(e)=>{
@@ -63,12 +73,34 @@ ws.addEventListener('message',(e)=>{
     }
 });
 
+/*
 window.addEventListener('keydown', (e) =>{
     monk.moveD(addMove(e));
 });
 
 window.addEventListener('keyup',(e)=>{
     monk.moveU(removeMove(e));
+});
+*/
+
+iCanv.addEventListener('mouseover',() => {
+    ctx2.clearRect(0,0,canv.offsetWidth,canv.offsetHeight);
+    iCanv.classList.add('open');
+    ctx2.font = '42px Arial';
+    ctx2.fillText('Plant',iCanv.offsetWidth,iCanv.offsetHeight);
+});
+
+iCanv.addEventListener('mouseout',() =>{
+    ctx2.clearRect(0,0,canv.offsetWidth,canv.offsetHeight);
+    iCanv.classList.remove('open');
+    ctx2.font = '42px Arial';
+    ctx2.fillText(`${monk.inv.seeds}`,iCanv.offsetWidth,iCanv.offsetHeight);
+});
+
+iCanv.addEventListener('click',() =>{
+    if(monk.inv.seeds > 0 && plant()){
+        monk.inv.seeds--;
+    }
 });
 
 canv.addEventListener('click',(e)=>{
@@ -78,17 +110,19 @@ canv.addEventListener('click',(e)=>{
     sendMonk();
 });
 
-const update = window.setInterval(() => {
+const update = setInterval(() => {
+    setPlants();
     ctx.clearRect(0,0,canv.offsetWidth,canv.offsetHeight);
-    for(const v of scene.actors.keys()){
-        if(Number(v) != monk.id){
-            const actor = stringToJson(scene.actors.get(Number(v)));
+    for(const k of scene.actors.keys()){
+        if(Number(k) != monk.id){
+            const actor = stringToJson(scene.actors.get(Number(k)));
             actor.trans.translate2();
-            scene.actors.set(Number(v),jsonToString(actor));
+            scene.actors.set(Number(k),jsonToString(actor));
             const pos = [actor.trans.x,actor.trans.y];
             const img = new Image();
             img.src = actor.sprite;
-            ctx.drawImage(img,pos[0]-img.offsetWidth/2,pos[1]-img.offsetHeight/2);
+            img.style.zIndex = 2;
+            ctx.drawImage(img,pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2);
         }
         else{
             monk.trans.translate2();
@@ -120,6 +154,53 @@ function spawn(m,t){
     m.trans = t;
     m.trans.setDest(m.trans.x,m.trans.y);
     scene.actors.set(Number(m.id),objToString(m));
+}
+
+function plant(){
+    let coords = [monk.trans.x,monk.trans.y];
+    if(monk.spriter.getFace()){
+        coords[0] += 20;
+    }else{
+        coords[0] -= 20;
+    }
+    const key = `${coords[0]},${coords[1]}`;
+    if(!scene.plants.has(key)){
+        const plant = new Plant();
+        scene.plants.set(key,plant);
+        console.log(`Seed planted at ${key}`);
+        return true;
+    }else{
+        return false;
+    }
+}
+
+function setPlants(){
+    for (const k of scene.plants.keys()){
+        const pos = k.split(',');
+        const plant = scene.plants.get(k);
+        if(!plant.mature()){
+            if(plant.view < 5){
+                plant.viewSet();
+                const img = new Image();
+                img.src = plant.sprite;
+                console.log(pos);
+                ctxp.drawImage(img,pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2);
+                plant.view++;
+                //console.log(`${k} placed`);
+            }
+        }
+        else{
+            if(plant.view < 5){
+                const img = new Image();
+                plant.viewSet();
+                img.src = plant.sprite;
+                ctxp.clearRect(pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2,img.naturalWidth,img.naturalHeight);
+                ctxp.drawImage(img,pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2);
+                plant.view++;
+                //console.log(`${k} matured`);
+            }
+        }
+    }
 }
 
 function sendMonk(){

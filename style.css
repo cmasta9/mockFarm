@@ -1,16 +1,68 @@
 body{
     background-color: purple;
     color: white;
+    margin: auto;
 }
 
-canvas{
-    border: 10px;
+#canv{
+    border: 5px;
     border-style: solid;
     border-color: black;
-    background-color: green;
-    margin: auto;
+    background-color: transparent;
+    position: absolute;
+    z-index: 2;
+}
+
+#plant{
+    border: 5px;
+    border-style: solid;
+    border-color: black;
+    background-color: #69cc00;
+    position: absolute;
+    z-index: 1;
+}
+
+#ui{
+    border: 5px;
+    border-style: solid;
+    border-radius: 26px;
+    opacity: 0.5;
+    width: 111px;
+    height: 69px;
+    border-color: #aaaa00;
+    z-index: 3;
+    position: absolute;
+    background-color: #eeee00;
+}
+
+.open#inp{
+    border: 5px;
+    border-style: solid;
+    border-radius: 26px;
+    opacity: 0.5;
+    border-color: #ffffff;
+    background-color: #ffff00;
+    z-index: 3;
+    position: absolute;
 }
 
 img{
     width:fit-content;
+}
+
+img.turn{
+    animation-duration: 4s;
+    animation-name: turny;
+}
+
+@keyframes turny{
+    0% {transform: rotate(0deg);}
+    25% {transform: rotate(22deg);}
+    50% {transform: rotate(0deg);}
+    75% {transform: rotate(-22deg);}
+    100% {transform: rotate(0deg);}
+}
+
+#users{
+    position: absolute;
 }
