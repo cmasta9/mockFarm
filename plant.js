@@ -26,7 +26,7 @@ export class Plant{
     getSeeds(){
         let seeds = 0;
         for(let i = 0; i < this.maxSeed; i++){
-            if(Math.random < this.seedProb){
+            if(Math.random() < this.seedProb){
                 seeds++;
             }
         }
@@ -36,7 +36,7 @@ export class Plant{
     getFruit(){
         let fruit = 0;
         for(let i = 0; i < this.maxFruit; i++){
-            if(Math.random < this.maxFruit){
+            if(Math.random() < this.fruitProb){
                 fruit++;
             }
         }

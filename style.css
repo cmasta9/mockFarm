@@ -35,7 +35,7 @@ body{
     background-color: #eeee00;
 }
 
-.open#inp{
+.mouseOn#inp{
     border: 5px;
     border-style: solid;
     border-radius: 26px;

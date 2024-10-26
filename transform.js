@@ -22,6 +22,10 @@ export class Transform{
         return this.y;
     }
 
+    getPos(){
+        return [this.x,this.y];
+    }
+
     setSpd(spd){
         this.spd = spd;
     }

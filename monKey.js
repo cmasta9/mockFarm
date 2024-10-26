@@ -26,6 +26,10 @@ export class MonKey {
         return this.trans;
     }
 
+    getPos(){
+        return this.trans.getPos();
+    }
+
     getSprite(){
         return this.spriter.cur;
     }
