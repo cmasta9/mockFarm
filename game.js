@@ -108,10 +108,8 @@ function setSeedText(){
 function toggleMouseover(e){
     if(e.classList.contains('mouseOn')){
         e.classList.remove('mouseOn');
-        ctx2.fillText(`${monk.inv.seeds}`,iCanv.offsetWidth,iCanv.offsetHeight);
     }else{
         e.classList.add('mouseOn');
-        ctx2.fillText('Plant',iCanv.offsetWidth,iCanv.offsetHeight);
     }
 }
 
@@ -195,7 +193,7 @@ function updateActors(){
             const actor = stringToJson(scene.actors.get(Number(k)));
             actor.trans.translate2();
             scene.actors.set(Number(k),jsonToString(actor));
-            const pos = actor.getPos();
+            const pos = [actor.trans.x,actor.trans.y];
             const img = new Image();
             img.src = actor.sprite;
             img.style.zIndex = 2;
