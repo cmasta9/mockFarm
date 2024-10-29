@@ -5,9 +5,7 @@ export class InputCanvas{
     constructor(canv,abilities=['plant']){
         this.canv = canv;
         this.abilities = abilities;
-    }
-
-    
+    }   
 }
 
 export function setPos(c,x,y){

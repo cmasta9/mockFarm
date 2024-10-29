@@ -1,6 +1,7 @@
 const port = 4200;
-import {mapToString,stringToJson,jsonToString,parseString,stringToArr} from './monkeyMap.js';
+import {mapToString,MstringToJson,MjsonToString,parseString,stringToArr} from './monkeyMap.js';
 let monkeys = new Map();
+let plants = new Map();
 
 const server = Bun.serve<{ socketId : number }>({
     port: port,
@@ -57,15 +58,6 @@ const server = Bun.serve<{ socketId : number }>({
             console.log(`Sent wsID to ${ws.data.socketId}`);
             ws.subscribe('game');
             server.publish('game',JSON.stringify({'connection': ws.data.socketId}));
-
-            /*
-            setInterval(() => {
-                if(monkeys.size > 1){
-                    ws.send(JSON.stringify({'monkeys': mapToString(monkeys)}));
-                    console.log(`Sent monkey (${monkeys.size}) datas to ${ws.data.socketId}`);
-                }
-            }, 500);
-            */
         },
         async close(ws){
             console.log(`${ws.data.socketId} disconnected`);
@@ -75,9 +67,40 @@ const server = Bun.serve<{ socketId : number }>({
         async message(ws,mess){
             //console.log(`Received a message: ${JSON.stringify(mess)} from ${ws.data.socketId}`);
             if(mess == 'gimme'){
-                ws.send(JSON.stringify({'monkeys': mapToString(monkeys)}));
-                console.log(`Sent monkey data to ${ws.data.socketId}`);
-            }else{
+                ws.send(JSON.stringify({'monkeys': mapToString(monkeys),'plants': mapToString(plants)}));
+                console.log(`Sent scene data to ${ws.data.socketId}`);
+                return;
+            }
+            else if(JSON.parse(mess).plant != null){
+                const plant = stringToArr(JSON.parse(mess).plant);
+                console.log(`Received a request to plant a seed at: ${plant[0]},${plant[1]} from ${ws.data.socketId}, ${JSON.parse(mess).monkey}`);
+                if(!plants.has(`${plant[0]},${plant[1]}`)){
+                    plants.set(`${plant[0]},${plant[1]}`,JSON.parse(mess).plant);
+                    server.publish('game',JSON.stringify({'planted':JSON.parse(mess).plant,'monkey':ws.data.socketId}));
+                    console.log(`Request granted, ${plants.size}`);
+                }else{
+                    
+                }
+                return;
+            }
+            else if(JSON.parse(mess).pick != null){
+                const plantQ = stringToArr(JSON.parse(mess).pick);
+                const plantR = plants.get(`${plantQ[0]},${plantQ[1]}`);
+                if(plantR){
+                    const arr = stringToArr(plantR);
+                    if(Number(Date.now()) >= Number(arr[3])){
+                        plants.delete(`${plantQ[0]},${plantQ[1]}`);
+                        server.publish('game',JSON.stringify({'picked':`${plantQ[0]},${plantQ[1]}`,'picker':ws.data.socketId}));
+                        console.log(`${ws.data.socketId} picked a plant at ${plantQ[0]},${plantQ[1]}... ${plants.size}`);
+                    }else{
+                        console.log(`${ws.data.socketId} tried to pick a plant at ${plantQ[0]},${plantQ[1]}, but it is not mature yet`);
+                    }
+                }else{
+                    console.log(`${ws.data.socketId} tried to pick a plant at ${plantQ[0]},${plantQ[1]} that doesn't exist`);
+                }
+                return;
+            }
+            else{
                 try{
                     const stir = stringToArr(parseString(mess));
                     if(stir[0]){

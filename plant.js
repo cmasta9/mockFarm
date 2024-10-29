@@ -2,9 +2,10 @@ const seedling = '/images/seedling.png';
 const flower = '/images/flower1.png';
 
 export class Plant{
-    constructor(maturityTime=10,currTime=0,fruitProb=1,maxFruit=1,seedProb=0.2,maxSeed=4,sprite=seedling,view=0){
+    constructor(loc=[0,0],id=Date.now(),maturityTime=Number(Date.now())+10000,fruitProb=1,maxFruit=1,seedProb=0.2,maxSeed=4,sprite=seedling,view=0){
+        this.loc = loc;
+        this.id = id;
         this.maturityTime = maturityTime;
-        this.currTime = currTime;
         this.fruitProb = fruitProb;
         this.maxFruit = maxFruit;
         this.seedProb = seedProb;
@@ -12,15 +13,19 @@ export class Plant{
         this.sprite = sprite;
         this.view = view;
 
-        this.int = setInterval(()=>{
-            if(this.currTime < this.maturityTime){
-                this.currTime++;
-            }else{
-                this.sprite = flower;
-                this.view = 0;
-                clearInterval(this.int);
-            }
-        },1000);
+        if(Number(Date.now()) >= this.maturityTime){
+            this.sprite = flower;
+        }else{
+            this.int = setInterval(()=>{
+                if(Number(Date.now()) >= this.maturityTime){
+                    this.sprite = flower;
+                    this.view = 0;
+                    clearInterval(this.int);
+                }else{
+                    this.sprite = seedling;
+                }
+            },1000);
+        }
     }
 
     getSeeds(){
@@ -52,7 +57,7 @@ export class Plant{
     }
 
     viewSet(){
-        if(this.currTime < this.maturityTime){
+        if(Number(Date.now()) < this.maturityTime){
             this.sprite = seedling;
         }else{
             this.sprite = flower;

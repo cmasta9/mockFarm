@@ -3,7 +3,7 @@ import {Transform} from '/transform.js';
 import {Plant} from '/plant.js';
 import {Scene} from '/scene.js';
 import {setPos,openMenu} from '/inputCanv.js';
-import { objToString,objToJson,stringToMap,stringToJson,parseString,stringToArr,jsonToString } from '/monkeyMap.js';
+import { MobjToString,MobjToJson,stringToMap,MstringToJson,parseString,stringToArr,MjsonToString,PobjToString,PstringToObj } from '/monkeyMap.js';
 
 const flowerPath = '/images/flower1.png';
 const pImg = new Image();
@@ -44,10 +44,10 @@ ws.addEventListener('message',(e)=>{
     if(ass.monkeys != null && ass.monkeys != ''){
         const monks = stringToMap(parseString(ass.monkeys));
         for(const j of monks.keys()){
-            const arr = stringToArr(j);
+            const arr = stringToArr(monks.get(j));
             if(arr[0] != monk.id){
                 if(scene.actors.has(Number(arr[0]))){
-                    if(stringToJson(scene.actors.get(Number(arr[0]))).trans.inp[0] != arr[4] && stringToJson(scene.actors.get(Number(arr[0]))).trans.inp[1] != arr[5]){
+                    if(MstringToJson(scene.actors.get(Number(arr[0]))).trans.inp[0] != arr[4] && MstringToJson(scene.actors.get(Number(arr[0]))).trans.inp[1] != arr[5]){
                         scene.actors.set(Number(arr[0]),monks.get(j));
                     }
                 }
@@ -57,6 +57,20 @@ ws.addEventListener('message',(e)=>{
             }
         }
         //logActors();
+    }
+    if(ass.plants != null && ass.plants != ''){
+        const plants = stringToMap(parseString(ass.plants));
+        for(const k of plants.keys()){
+            if(!scene.plants.has(k)){
+                scene.plants.set(k,PstringToObj(plants.get(k)));
+            }
+        }
+    }
+    else if(ass.planted != null){
+        placePlant(ass.planted);
+    }
+    else if(ass.picked != null && ass.picked != '' && ass.picker != null){
+        removePlant(ass.picked,ass.picker);
     }
     else if(ass.assignment != null){
         monk = new MonKey(ass.assignment);
@@ -150,7 +164,7 @@ const update = setInterval(() => {
 function spawn(m,t){
     m.trans = t;
     m.trans.setDest(m.getPos());
-    scene.actors.set(Number(m.id),objToString(m));
+    scene.actors.set(Number(m.id),MobjToString(m));
     ctx2.fillText(m.inv.seeds,iCanv.offsetWidth,iCanv.offsetHeight);
 }
 
@@ -161,42 +175,57 @@ function plant(){
     }else{
         coords[0] -= 20;
     }
-    const key = `${coords[0]},${coords[1]}`;
-    if(!scene.plants.has(key)){
-        if(!plantCollision(coords,pImg.naturalWidth)){
-            const plant = new Plant();
-            scene.plants.set(key,plant);
-            console.log(`Seed planted at ${key}`);
-            return true;
-        }
+    const plant = new Plant(coords);
+    if(!plantCollision(coords,pImg.naturalWidth)){
+        ws.send(JSON.stringify({'plant':PobjToString(plant),'monkey': monk.id}));
+        console.log(`Plant query sent.`);
+        return true;
     }
+    return false;
+}
+
+function placePlant(s){
+    const plant = PstringToObj(s);
+    if(!plantCollision(plant.loc,pImg.naturalWidth)){
+        scene.plants.set(`${plant.loc[0]},${plant.loc[1]}`,plant);
+        console.log(`Seed planted at ${plant.loc}`);
+        return true;
+    }
+    console.log(`Could not place plant at ${plant.loc}`);
     return false;
 }
 
 function pickPlant(k){
     const plant = scene.plants.get(k);
-    const pos = k.split(',');
     if(plant){
-        console.log
+        ws.send(JSON.stringify({'pick':PobjToString(plant)}));
+        console.log('Pick query sent');
+    }
+}
+
+function removePlant(k,m){
+    const plant = scene.plants.get(k);
+    if(plant){
         scene.plants.delete(k);
-        ctxp.clearRect(pos[0]-pImg.naturalWidth/2,pos[1]-pImg.naturalHeight/2,pImg.naturalWidth,pImg.naturalHeight);
-        monk.inv.fruit += plant.getFruit();
-        monk.inv.seeds += plant.getSeeds();
-        console.log(`new fruit: ${monk.inv.fruit}`);
-        setSeedText();
+        ctxp.clearRect(plant.loc[0]-pImg.naturalWidth/2,plant.loc[1]-pImg.naturalHeight/2,pImg.naturalWidth,pImg.naturalHeight);
+        if(m == monk.id){
+            monk.inv.fruit += plant.getFruit();
+            monk.inv.seeds += plant.getSeeds();
+            console.log(`new fruit: ${monk.inv.fruit}`);
+            setSeedText();
+        }
     }
 }
 
 function updateActors(){
     for(const k of scene.actors.keys()){
         if(Number(k) != monk.id){
-            const actor = stringToJson(scene.actors.get(Number(k)));
+            const actor = MstringToJson(scene.actors.get(Number(k)));
             actor.trans.translate2();
-            scene.actors.set(Number(k),jsonToString(actor));
+            scene.actors.set(Number(k),MjsonToString(actor));
             const pos = [actor.trans.x,actor.trans.y];
             const img = new Image();
             img.src = actor.sprite;
-            img.style.zIndex = 2;
             ctx.drawImage(img,pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2);
         }
         else{
@@ -211,28 +240,15 @@ function updateActors(){
 
 function setPlants(){
     for (const k of scene.plants.keys()){
-        const pos = k.split(',');
         const plant = scene.plants.get(k);
-        if(!plant.mature()){
-            // allowing more than one frame for this to occur ensures that it will happen every time -- resource loading lag?
-            if(plant.view < 3){
-                plant.viewSet();
-                const img = new Image();
-                img.src = plant.sprite;
-                ctxp.drawImage(img,pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2);
-                plant.view++;
-                //console.log(`${k} placed`);
-            }
-        }
-        else{
-            if(plant.view < 3){
-                plant.viewSet();
-                const img = new Image();
-                img.src = plant.sprite;
-                ctxp.drawImage(img,pos[0]-img.naturalWidth/2,pos[1]-img.naturalHeight/2);
-                plant.view++;
-                //console.log(`${k} matured`);
-            }
+        // allowing more than one frame for this to occur ensures that it will happen every time -- resource loading lag?
+        if(plant.view < 3){
+            plant.viewSet();
+            const img = new Image();
+            img.src = plant.sprite;
+            ctxp.drawImage(img,plant.loc[0]-img.naturalWidth/2,plant.loc[1]-img.naturalHeight/2);
+            plant.view++;
+            //console.log(`${k} img set`);
         }
     }
 }
@@ -287,7 +303,7 @@ function plantCollision(q,r){
 
 function sendMonk(){
     if(wsOpen && scene.actors.size > 0){
-        const packet = objToString(monk);
+        const packet = MobjToString(monk);
         ws.send(JSON.stringify(packet));
     }
 }
