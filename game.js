@@ -1,9 +1,8 @@
 import {MonKey} from '/monKey.js';
 import {Transform} from '/transform.js';
-import {Plant} from '/plant.js';
 import {Scene} from '/scene.js';
-import {setPos,openMenu} from '/inputCanv.js';
-import { MobjToString,MobjToJson,stringToMap,MstringToJson,parseString,stringToArr,MjsonToString,PobjToString,PstringToObj } from '/monkeyMap.js';
+import {setPos} from '/inputCanv.js';
+import { MobjToString,stringToMap,PstringToMap,MstringToJson,parseString,stringToArr,MjsonToString,PobjToString,PstringToObj } from '/monkeyMap.js';
 
 const flowerPath = '/images/flower1.png';
 const pImg = new Image();
@@ -22,10 +21,15 @@ let scene = new Scene();
 let ctx = canv.getContext('2d');
 let ctxp = pCanv.getContext('2d');
 let ctx2 = iCanv.getContext('2d');
-ctx2.font = '42px Arial';
+
+const baseSize = 42;
+
+ctx2.font = `${baseSize}px Arial`;
 setPos(iCanv,canv.offsetWidth*0.1,canv.offsetHeight*0.8);
 
-document.getElementById('users').style.top = `${canv.offsetHeight + 42}px`;
+document.getElementById('flowers').style.top = `${canv.offsetHeight + baseSize}px`;
+document.getElementById('users').style.top = `${canv.offsetHeight + 2*baseSize}px`;
+document.getElementById('plants').style.top = `${canv.offsetHeight + 3*baseSize}px`;
 
 const ws = new WebSocket(`ws://${hostUrl}`);
 ws.addEventListener('open',(e)=>{
@@ -59,10 +63,12 @@ ws.addEventListener('message',(e)=>{
         //logActors();
     }
     if(ass.plants != null && ass.plants != ''){
-        const plants = stringToMap(parseString(ass.plants));
+        const plants = PstringToMap(parseString(ass.plants));
         for(const k of plants.keys()){
             if(!scene.plants.has(k)){
-                scene.plants.set(k,PstringToObj(plants.get(k)));
+                const plant = PstringToObj(plants.get(k));
+                scene.plants.set(k,plant);
+                //console.log(plants.get(k));
             }
         }
     }
@@ -85,8 +91,8 @@ ws.addEventListener('message',(e)=>{
         if(ass.connection != monk.id){
             sendMonk();
         }
-        document.getElementById('users').innerText = `Users: ${scene.actors.size}`;
     }
+    document.getElementById('users').innerText = `Connected Users: ${scene.actors.size}`;
 });
 
 /*
@@ -140,9 +146,9 @@ canv.addEventListener('click',(e)=>{
     const canvCoords = [e.pageX-canv.offsetLeft-canv.clientLeft,e.pageY-canv.offsetLeft-canv.clientLeft];
     const plantKey = plantCollision(canvCoords,pImg.naturalWidth);
     if(plantKey && plantCollision(monk.getPos(),pImg.naturalWidth) == plantKey){
-        console.log('clicked on a plant');
+        //console.log('clicked on a plant');
         if(scene.plants.get(plantKey).mature()){
-            console.log('plant is mature');
+            //console.log('plant is mature');
             pickPlant(plantKey);
         }else{
             console.log('not mature yet');
@@ -158,7 +164,6 @@ const update = setInterval(() => {
     setPlants();
     ctx.clearRect(0,0,canv.offsetWidth,canv.offsetHeight);
     updateActors();
-    document.getElementById('users').innerText = `Users: ${scene.actors.size}`;
 },42);
 
 function spawn(m,t){
@@ -175,9 +180,8 @@ function plant(){
     }else{
         coords[0] -= 20;
     }
-    const plant = new Plant(coords);
     if(!plantCollision(coords,pImg.naturalWidth)){
-        ws.send(JSON.stringify({'plant':PobjToString(plant),'monkey': monk.id}));
+        ws.send(JSON.stringify({'plant':`${coords[0]},${coords[1]},${Date.now()},10`,'monkey': monk.id}));
         console.log(`Plant query sent.`);
         return true;
     }
@@ -211,8 +215,9 @@ function removePlant(k,m){
         if(m == monk.id){
             monk.inv.fruit += plant.getFruit();
             monk.inv.seeds += plant.getSeeds();
-            console.log(`new fruit: ${monk.inv.fruit}`);
+            //console.log(`new fruit: ${monk.inv.fruit}`);
             setSeedText();
+            document.getElementById('flowers').innerText = `Flowers Picked: ${monk.inv.fruit}`;
         }
     }
 }
@@ -251,6 +256,7 @@ function setPlants(){
             //console.log(`${k} img set`);
         }
     }
+    document.getElementById('plants').innerText = `Plants in Scene: ${scene.plants.size}`;
 }
 
 function collision1D(q1,q2,r){
@@ -262,7 +268,7 @@ function collision1D(q1,q2,r){
 }
 
 function distance(q1,q2){
-    return Math.sqrt(Math.pow(q1[0]-q2[0],2)+Math.pow(q1[1]-q2[1],2));
+    return Math.sqrt(Math.pow(Number(q1[0])-Number(q2[0]),2)+Math.pow(Number(q1[1])-Number(q2[1]),2));
 }
 
 function collision2D(q1,q2,r){

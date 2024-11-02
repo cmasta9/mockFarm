@@ -63,6 +63,6 @@ img.turn{
     100% {transform: rotate(0deg);}
 }
 
-#users{
+.info{
     position: absolute;
 }

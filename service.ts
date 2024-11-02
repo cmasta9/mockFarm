@@ -73,10 +73,12 @@ const server = Bun.serve<{ socketId : number }>({
             }
             else if(JSON.parse(mess).plant != null){
                 const plant = stringToArr(JSON.parse(mess).plant);
+                const newPlant = `${plant[0]},${plant[1]},${plant[2]},${Number(Date.now())+Number(plant[3])*1000}`;
                 console.log(`Received a request to plant a seed at: ${plant[0]},${plant[1]} from ${ws.data.socketId}, ${JSON.parse(mess).monkey}`);
                 if(!plants.has(`${plant[0]},${plant[1]}`)){
-                    plants.set(`${plant[0]},${plant[1]}`,JSON.parse(mess).plant);
-                    server.publish('game',JSON.stringify({'planted':JSON.parse(mess).plant,'monkey':ws.data.socketId}));
+                    plants.set(`${plant[0]},${plant[1]}`,newPlant);
+                    console.log(newPlant);
+                    server.publish('game',JSON.stringify({'planted':newPlant,'monkey':ws.data.socketId}));
                     console.log(`Request granted, ${plants.size}`);
                 }else{
                     

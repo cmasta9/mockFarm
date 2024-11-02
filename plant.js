@@ -2,7 +2,7 @@ const seedling = '/images/seedling.png';
 const flower = '/images/flower1.png';
 
 export class Plant{
-    constructor(loc=[0,0],id=Date.now(),maturityTime=Number(Date.now())+10000,fruitProb=1,maxFruit=1,seedProb=0.2,maxSeed=4,sprite=seedling,view=0){
+    constructor(loc=[0,0],id=Date.now(),maturityTime=Date.now()+10000,fruitProb=1,maxFruit=1,seedProb=0.2,maxSeed=4,sprite=seedling,view=0){
         this.loc = loc;
         this.id = id;
         this.maturityTime = maturityTime;

@@ -55,3 +55,12 @@ export function stringToMap(s){
     }
     return map;
 }
+
+export function PstringToMap(s){
+    const arr = s.split(';');
+    let map = new Map();
+    for(let i = 0; i < arr.length; i++){
+        map.set(`${arr[i].split(',')[0]},${arr[i].split(',')[1]}`,arr[i]);
+    }
+    return map;
+}
